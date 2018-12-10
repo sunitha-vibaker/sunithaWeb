@@ -1,4 +1,4 @@
-var HOST = location.origin.replace(/^http/, 'ws')
+var HOST = location.origin.replace('ws', 'ws')
 var sock = new WebSocket(HOST);
 
 //var sock = new WebSocket("ws://localhost:2001");
