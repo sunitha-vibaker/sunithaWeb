@@ -1,20 +1,32 @@
-var PORT = process.env.PORT || 5000;
-var express = require('express');
-var app = express();
+var server = require('ws').Server;
+var s = new server({port: process.env.PORT || 2001 });
 
-var http = require('http');
-var server = http.Server(app);
+s.on('connection', function(ws) {
 
-app.use(express.static('client'));
+    ws.on('message', function(message) {
+        message = JSON.parse(message);
+        console.log(message);
+        if(message.type == 'name'){
+            ws.personName = message.data;
+            return;
+        }
+        console.log('Recieved:' +message); 
+        
+        s.clients.forEach(function e(client){
+            if(client != ws)
+            client.send(JSON.stringify({
+                name:ws.personName,
+                data:message.data
+            }));
+        })
+        
+        //ws.send('From Server: '+message);touc
+        
 
-server.listen(PORT, function() {
-  console.log('Chat server running');
-});
+    });
+    ws.on('close', function() {
+        console.log("I lost a Client");
 
-var io = require('socket.io')(server);
-
-io.on('connection', function(socket) {
-  socket.on('message', function(msg) {
-    io.emit('message', msg);
-  });
+    });
+    console.log("One more client connected");
 });
